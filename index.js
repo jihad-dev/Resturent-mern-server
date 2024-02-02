@@ -56,12 +56,11 @@ async function run() {
       const result = await cartCollection.insertOne(item);
       res.send(result);
     });
- 
 
     // CART DATA GET OPERATION  USER EMAIL SPECIFICS BY USER BOOKINGS API //
+
     app.get("/carts", async (req, res) => {
       const email = req.query.email;
-      console.log(email);
       if (!email) {
         res.send([]);
       }
@@ -81,7 +80,7 @@ async function run() {
 
     app.post("/users", async (req, res) => {
       const users = req.body;
-      const query = { email: users.email };
+      const query = { email: users?.email };
       const existingUser = await usersCollection.findOne(query);
       if (existingUser) {
         return res.send({ message: "User already exists" });
@@ -97,6 +96,11 @@ async function run() {
       res.send(result);
     });
 
+    app.delete("/users/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
     // ADMIN API CREATE //
 
     app.patch("/users/admin/:id", async (req, res) => {
