@@ -113,7 +113,6 @@ async function run() {
     // ALL USERS API CALLED GET METHOD API //
 
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
- 
       const query = {};
       const result = await usersCollection.find(query).toArray();
       res.send(result);
@@ -144,8 +143,7 @@ async function run() {
     });
     // ADMIN API CREATE //
 
-    app.patch(
-      "/users/admin/:id",
+    app.patch("/users/admin/:id",
       verifyToken,
       verifyAdmin,
       async (req, res) => {
