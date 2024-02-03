@@ -28,16 +28,27 @@ async function run() {
     const cartCollection = client.db("BistroDb").collection("cart");
 
     // JWT Authorization //
-
-    // jwt authorization
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
         expiresIn: "1h",
       });
       res.send({ token });
     });
+    // jwt token middleware //
+    const verifyToken = (req, res, next) => {
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: "forbidden access" });
+      }
+      const token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: "forbidden access" });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    };
 
     // menu collection data
     app.get("/menu", async (req, res) => {
@@ -90,12 +101,32 @@ async function run() {
     });
     // ALL USERS API CALLED GET METHOD API //
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, async (req, res) => {
+      console.log(req.headers.authorization);
       const query = {};
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
 
+    // USER ADMIN CHECK API //
+      app.get('/users/admin/:email', verifyToken , async (req, res) => {
+        const email = req.params.email;
+        if(email !== req.decoded.email){
+          return res.status(403).send({ message:"unauthorized access to admin"})
+        }
+        const query = { email: email}
+        const user = await usersCollection.findOne(query);
+        let admin = false;
+        if(user){
+          admin = user?.role === 'admin';
+        }
+        res.send({admin})
+      })
+
+
+
+
+    // DELETE USER API //
     app.delete("/users/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const result = await usersCollection.deleteOne(query);
