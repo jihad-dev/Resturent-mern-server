@@ -81,7 +81,7 @@ async function run() {
 
     // CART DATA GET OPERATION  USER EMAIL SPECIFICS BY USER BOOKINGS API //
 
-    app.get("/carts", verifyToken, async (req, res) => {
+    app.get("/carts", async (req, res) => {
       const email = req.query.email;
       if (!email) {
         res.send([]);
