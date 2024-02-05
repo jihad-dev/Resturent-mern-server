@@ -66,6 +66,18 @@ async function run() {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
+    // delete item from menu collection admin //
+    app.delete("/menu/:id", verifyToken,verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+
+
+
     // review collection data
     app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find().toArray();
@@ -81,7 +93,7 @@ async function run() {
 
     // CART DATA GET OPERATION  USER EMAIL SPECIFICS BY USER BOOKINGS API //
 
-    app.get("/carts", async (req, res) => {
+    app.get("/carts",  async (req, res) => {
       const email = req.query.email;
       if (!email) {
         res.send([]);
@@ -158,7 +170,28 @@ async function run() {
         res.send(result);
       }
     );
-  } finally {
+
+
+ // ADMIN ADDED TO THE MENU ITEMS //
+        app.post('/menu', verifyToken,verifyAdmin,  async (req, res) => {
+          const item = req.body;
+          const result = await menuCollection.insertOne(item);
+          res.send(result);
+        })
+
+
+
+
+
+
+
+
+  }
+ 
+  
+  finally {
+
+
   }
 }
 run().catch(console.dir);
