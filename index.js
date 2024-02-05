@@ -61,11 +61,28 @@ async function run() {
       next();
     };
 
-    // menu collection data
+    // menu all data get  collection data
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
+    // specific menu data load _id //
+    app.get("/menu/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await menuCollection.findOne(query);
+      res.send(result);
+    
+    })
+    
+    
+ // ADMIN ADDED TO THE MENU ITEMS //
+ app.post('/menu', verifyToken,verifyAdmin,  async (req, res) => {
+  const item = req.body;
+  const result = await menuCollection.insertOne(item);
+  res.send(result);
+})
+
     // delete item from menu collection admin //
     app.delete("/menu/:id", verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
@@ -73,6 +90,35 @@ async function run() {
       const result = await menuCollection.deleteOne(query);
       res.send(result);
     });
+// UPDATE item from menu collection admin //
+
+
+        app.patch("/menu/:id",
+        verifyToken,
+        verifyAdmin,
+        async (req, res) => {
+          const item = req.body;
+          const id = req.params.id;
+          const filter = { _id: new ObjectId(id) };
+          const updatedDoc = {
+            $set: {
+            name: item.name,
+            recipe: item.recipe,
+            category: item.category,
+            price: item.price,
+            image:item.image
+            },
+          };
+          const result = await menuCollection.updateOne(filter, updatedDoc);
+          res.send(result);
+        }
+        );
+
+
+
+
+
+
 
 
 
@@ -171,13 +217,6 @@ async function run() {
       }
     );
 
-
- // ADMIN ADDED TO THE MENU ITEMS //
-        app.post('/menu', verifyToken,verifyAdmin,  async (req, res) => {
-          const item = req.body;
-          const result = await menuCollection.insertOne(item);
-          res.send(result);
-        })
 
 
 
