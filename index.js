@@ -156,6 +156,31 @@ async function run() {
       res.send(result);
     });
 
+    // TODO: increase product quantity //
+
+    
+    // app.get("/carts/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const result = await cartCollection.findOne(query);
+    //   res.send(result);
+    // });
+    // //
+
+    // app.patch('/carts/:id', async (req, res) => {
+    //   const item = req.body;
+    //   console.log('new quantity',item)
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) };
+    //   const updatedDoc = {
+    //     $inc: {
+    //     quantity: ` ${(item.quantity)}` ,     
+    //     },
+    //   };
+    //   const result = await cartCollection.updateOne(filter, updatedDoc);
+    //   res.send(result);
+    // })
+
     // USER INFORMATION SAVED TO THE DATABASE BY USER EMAIL AND NAME //
 
     app.post("/users", async (req, res) => {
