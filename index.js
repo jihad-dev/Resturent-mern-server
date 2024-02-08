@@ -3,12 +3,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const stripe = require('stripe')('sk_test_51NqaJaCB7ApQkP6sI5oYkTWwTBDtXiFxwoNzisLMswiSuSJ59AX23b9jrrsRwu4fmTs1XFtl4BR9QN1KpufufNgJ00JblJLtOl');
 require("dotenv").config();
 // middleware
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId, Double } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5ipn6sc.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -158,7 +159,7 @@ async function run() {
 
     // TODO: increase product quantity //
 
-    
+
     // app.get("/carts/:id", async (req, res) => {
     //   const id = req.params.id;
     //   const query = { _id: new ObjectId(id) };
@@ -242,13 +243,29 @@ async function run() {
       }
     );
 
+// payments API //
+
+app.post('/create-payment-intent', async (req, res) => {
+const {price} = req.body;
+const amount = parseInt(price * 100);
+console.log(amount, 'amount is ')
+const paymentIntent  = await stripe.paymentIntents.create({
+  amount: amount,
+  currency: 'usd',
+  payment_method_types: ['card']
+
+})
+res.send({
+  clientSecret: paymentIntent.client_secret,
+})
+})
 
 
 
 
 
-
-
+await client.db("admin").command({ping : 1})
+console.log("Ping your Deployment. You successfully connected to the MongoDB Database");
 
   }
  
