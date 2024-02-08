@@ -286,6 +286,67 @@ app.get('/payments/:email', verifyToken, async (req, res) => {
 
 })
 
+// stats or analytics only admin access //
+
+app.get('/admin-stats', verifyToken,verifyAdmin, async (req, res) => {
+const users = await usersCollection.estimatedDocumentCount();
+const orders = await paymentsCollection.estimatedDocumentCount();
+const menuItems = await menuCollection.estimatedDocumentCount();
+// this is not the best way to get revenue //
+// const payments = await paymentsCollection.find().toArray();
+// const revenue = payments.reduce((total,item) => total + item.price,0)
+
+const result = await paymentsCollection.aggregate([
+  {
+    $group: {
+      _id: null,
+      totalRevenue: {
+      $sum: '$price',
+      }
+    }
+  
+  }
+
+]).toArray();
+
+const revenue = result.length > 0 ? result[0].totalRevenue : 0 ;
+
+res.send({
+  users,
+  orders,
+  menuItems,
+  revenue
+
+})
+})
+
+
+// order items pipelines by aggrigate //
+
+// app.get('/order-stats' , async (req, res) => {
+//   const result = await paymentsCollection.aggregate([
+//   {
+//   $unwind: '$menuItemIds'
+//   },
+//   {
+//   $lookup: {
+//   from: 'menus',
+//   localField: 'menuItemIds',
+//   foreignField: '_id',
+//   as: 'menuItems',
+//   }
+//   },
+
+
+//   ]).toArray();
+//   res.send(result);
+
+// })
+
+
+
+
+
 
 await client.db("admin").command({ping : 1})
 console.log("Ping your Deployment. You successfully connected to the MongoDB Database");
